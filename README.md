@@ -13,17 +13,25 @@ This repository is intentionally practical:
 
 Do not commit API keys, provider credentials, private model tokens, SSH keys, or raw logs that contain secrets. Use `.env` locally and keep secrets in environment variables.
 
-## First Experiment
+## Experiments
 
 `experiments/001-mi300x-kimi-k26/` tracks the initial AMD MI300X deployment of `moonshotai/Kimi-K2.6` on RunPod spot pods.
 
-Current preferred path:
+`experiments/002-kimi-k26-gguf-q2/` tracks the lower-VRAM GGUF route using `unsloth/Kimi-K2.6-GGUF` with llama.cpp.
+
+Current full-precision preferred path:
 
 1. Use a RunPod Secure Cloud MI300X pod because MI300X availability is currently Secure Cloud only.
 2. Use an interruptible/spot pod through the RunPod REST API with `interruptible: true`.
 3. Attach a network volume in the same datacenter so model weights and benchmark artifacts survive spot eviction and pod termination.
 4. Serve Kimi K2.6 with SGLang on 4x MI300X first, because the SGLang Kimi K2.6 cookbook gives AMD-specific MI300X guidance.
 5. Validate with a smoke prompt, then run controlled concurrency benchmarks.
+
+Current low-VRAM fallback path:
+
+1. Use `unsloth/Kimi-K2.6-GGUF` `UD-Q2_K_XL`, which is materially smaller than the full BF16 checkpoint.
+2. Rank RunPod GPU nodes by enough aggregate VRAM for the quantized model, then prefer the cheapest spot configuration.
+3. Serve with llama.cpp, validate its OpenAI-compatible endpoint, then run the same benchmark client.
 
 ## Quick Start
 
@@ -44,6 +52,7 @@ scripts/runpod/create_spot_pod_rest.sh
 Use `DRY_RUN=1` with the create scripts to inspect settings without creating billable resources.
 `create_spot_pod_rest.sh` requires `NETWORK_VOLUME_ID` by default. Set `ALLOW_POD_VOLUME=1` only for disposable tests where a normal pod volume is acceptable.
 If the REST API rejects a CLI-configured API key or explicit spot bidding is needed, use `scripts/runpod/create_spot_pod_graphql.sh`.
+That script also supports disposable pod volumes for capacity probes with `ALLOW_POD_VOLUME=1`.
 
 After the server is reachable:
 
