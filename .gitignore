@@ -1,0 +1,24 @@
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.DS_Store
+
+# Local caches and large model artifacts.
+hf/
+huggingface/
+models/
+*.safetensors
+*.gguf
+*.pt
+*.pth
+
+# Provider or terminal logs may contain secrets. Curate before committing.
+*.log
+runpod-response*.json
+
