@@ -136,6 +136,30 @@ This retry sequence confirmed:
 - `A40` can also allocate, but the same unreachable-after-allocation failure mode can occur
 - `RTX A6000` had no allocatable on-demand capacity in the tested datacenters at the time of the retry
 
+## 4x MI300X Benchmark Attempt
+
+Later on 2026-04-23, a direct benchmark attempt was made on `4x MI300X` with enough storage for the full Kimi K2.6 model:
+
+Pod `5sxaiagociux28`:
+
+- GPU: `4x AMD Instinct MI300X OAM`
+- Datacenter: `EU-RO-1`
+- Image: `lmsysorg/sglang:v0.5.9-rocm700-mi30x`
+- Volume: `1000 GB`
+- Cost: `$7.96/hr`
+- Initial startup command: `sleep infinity`
+
+Observed behavior:
+
+- The pod allocated successfully.
+- RunPod later attached SSH metadata with `213.173.96.55:14368`.
+- Repeated direct SSH attempts to that endpoint returned `Connection refused`.
+- `uptimeSeconds` stayed `0` throughout the readiness window.
+
+Because the pod never became actually reachable, SGLang was never started and no smoke test or benchmark request could be run.
+
+This was the same underlying failure mode seen in earlier MI300X idle probes on the same host family: allocation succeeded, but the pod never crossed into a reachable runtime state.
+
 ## Immediate Next Step
 
 Do not spend more time trying to benchmark frameworks on a pod that is not reachable. The next attempt should begin with a known-good idle readiness probe on a different provider or a RunPod path that bypasses this pod-readiness failure mode.
