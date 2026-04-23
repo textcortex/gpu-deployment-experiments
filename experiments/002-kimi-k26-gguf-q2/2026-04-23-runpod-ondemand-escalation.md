@@ -87,6 +87,55 @@ All on-demand pods created during the escalation were deleted. After cleanup:
 
 That remaining spend was from a pre-existing serverless endpoint, not these experiments.
 
+## Directed Retry Sequence: MI300X -> A40 -> RTX A6000
+
+Later on 2026-04-23, a directed retry was run in the exact order requested by the operator:
+
+### 1. 4x MI300X Secure in `EU-RO-1`
+
+Pod `45b65xiki03mnx`:
+
+- Image: `lmsysorg/sglang:v0.5.9-rocm700-mi30x`
+- Startup command: `sleep infinity`
+- Cost: `$7.96/hr`
+- Result: allocated, SSH metadata appeared (`213.173.96.55:10682`), but the actual SSH port refused connections during repeated retries
+
+The pod was deleted after the readiness check failed.
+
+### 2. 8x A40 Secure in `EU-SE-1`
+
+Pod `j7alciand4ytkn`:
+
+- Image: `runpod/pytorch:1.0.3-cu1281-torch291-ubuntu2404`
+- Startup command: `sleep infinity`
+- Cost: `$3.52/hr`
+- Result: allocated, SSH metadata appeared (`194.68.245.60:22019`), but the actual SSH port refused connections during repeated retries
+
+The pod was deleted after the readiness check failed.
+
+### 3. 8x RTX A6000 Community, then Secure
+
+Tried these datacenters for both `COMMUNITY` and `SECURE`:
+
+- `CA-MTL-3`
+- `EU-SE-1`
+- `EU-RO-1`
+- `US-KS-2`
+- `US-TX-1`
+
+Result:
+
+- No allocation in any tested datacenter
+- RunPod returned GraphQL `SUPPLY_CONSTRAINT` errors for every A6000 request
+
+### Outcome
+
+This retry sequence confirmed:
+
+- `MI300X` can allocate, but the pod still may not become actually reachable
+- `A40` can also allocate, but the same unreachable-after-allocation failure mode can occur
+- `RTX A6000` had no allocatable on-demand capacity in the tested datacenters at the time of the retry
+
 ## Immediate Next Step
 
 Do not spend more time trying to benchmark frameworks on a pod that is not reachable. The next attempt should begin with a known-good idle readiness probe on a different provider or a RunPod path that bypasses this pod-readiness failure mode.
