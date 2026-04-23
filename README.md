@@ -33,6 +33,12 @@ Current low-VRAM fallback path:
 2. Rank RunPod GPU nodes by enough aggregate VRAM for the quantized model, then prefer the cheapest spot configuration.
 3. Serve with llama.cpp, validate its OpenAI-compatible endpoint, then run the same benchmark client.
 
+Current framework comparison:
+
+1. `vLLM`, `SGLang`, and `KTransformers` are the Kimi K2.6 engines Moonshot officially recommends.
+2. `TensorRT-LLM` now has an NVIDIA deployment guide for `Kimi-K2-Thinking` on Blackwell, but Kimi K2.6 is not listed in Moonshot's K2.6 deployment guide or NVIDIA's TensorRT-LLM support matrix.
+3. Use `vLLM` as the first full-GPU throughput baseline, `SGLang` as the second full-GPU baseline and AMD path, and `KTransformers` when lower VRAM or CPU+GPU heterogeneous inference matters more than pure throughput.
+
 ## Quick Start
 
 ```bash
@@ -53,6 +59,7 @@ Use `DRY_RUN=1` with the create scripts to inspect settings without creating bil
 `create_spot_pod_rest.sh` requires `NETWORK_VOLUME_ID` by default. Set `ALLOW_POD_VOLUME=1` only for disposable tests where a normal pod volume is acceptable.
 If the REST API rejects a CLI-configured API key or explicit spot bidding is needed, use `scripts/runpod/create_spot_pod_graphql.sh`.
 That script also supports disposable pod volumes for capacity probes with `ALLOW_POD_VOLUME=1`.
+For on-demand probes, use `scripts/runpod/create_kimi_k26_gguf_pod_rest.sh` or `scripts/runpod/create_on_demand_pod_graphql.sh`.
 
 After the server is reachable:
 

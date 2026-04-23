@@ -1,6 +1,6 @@
 # Experiment 002: Kimi K2.6 GGUF Q2 on Cheapest Viable RunPod GPUs
 
-Status: blocked by spot capacity and pod startup reliability
+Status: blocked by RunPod capacity and pod readiness reliability
 
 ## Goal
 
@@ -49,6 +49,16 @@ scripts/runpod/create_kimi_k26_gguf_spot_pod.sh
 ```
 
 The wrapper embeds `scripts/serve/start_llamacpp_kimi_k26_gguf_cuda.sh` into `CUSTOM_START_CMD` so the pod does not need this repository pre-cloned.
+
+On-demand escalation scripts:
+
+```bash
+# REST path with datacenter list support limited by RunPod's published allowlist.
+scripts/runpod/create_kimi_k26_gguf_pod_rest.sh
+
+# GraphQL path for newer datacenters and direct on-demand pod creation.
+scripts/runpod/create_on_demand_pod_graphql.sh
+```
 
 ## Smoke Test
 
