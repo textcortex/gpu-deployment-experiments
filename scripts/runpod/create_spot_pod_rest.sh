@@ -152,14 +152,29 @@ if [[ "$DRY_RUN" == "1" ]]; then
   exit 0
 fi
 
-response="$(
-  curl --fail-with-body --silent --show-error \
+response_file="$(mktemp)"
+status_code="$(
+  curl --silent --show-error \
     --request POST \
     --url "https://rest.runpod.io/v1/pods" \
     --header "Authorization: Bearer ${RUNPOD_API_KEY}" \
     --header "Content-Type: application/json" \
-    --data "$payload"
+    --data "$payload" \
+    --output "$response_file" \
+    --write-out "%{http_code}"
 )"
+response="$(cat "$response_file")"
+rm -f "$response_file"
+
+if [[ "$status_code" -lt 200 || "$status_code" -ge 300 ]]; then
+  echo "RunPod create pod failed with HTTP ${status_code}." >&2
+  if jq empty >/dev/null 2>&1 <<<"$response"; then
+    jq 'del(.env)' <<<"$response" >&2
+  else
+    printf '%s\n' "$response" >&2
+  fi
+  exit 1
+fi
 
 # Do not echo env back to the terminal; it may include HF_TOKEN.
 jq 'del(.env)' <<<"$response"

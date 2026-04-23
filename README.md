@@ -43,6 +43,7 @@ scripts/runpod/create_spot_pod_rest.sh
 
 Use `DRY_RUN=1` with the create scripts to inspect settings without creating billable resources.
 `create_spot_pod_rest.sh` requires `NETWORK_VOLUME_ID` by default. Set `ALLOW_POD_VOLUME=1` only for disposable tests where a normal pod volume is acceptable.
+If the REST API rejects a CLI-configured API key or explicit spot bidding is needed, use `scripts/runpod/create_spot_pod_graphql.sh`.
 
 After the server is reachable:
 

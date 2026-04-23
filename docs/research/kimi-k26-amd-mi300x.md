@@ -46,6 +46,25 @@ This availability changes frequently, so always run `scripts/runpod/check_availa
 | Tensor parallelism | `--tp 4` |
 | Port | `30000/http` |
 
+## Smaller MI300X Fallback
+
+Kimi K2.6 is too large to treat 1x or 2x MI300X as normal serving baselines. The Hugging Face repository is about 595 GB, while each MI300X has 192 GB VRAM.
+
+A 2x MI300X fallback may be worth testing only with CPU offload and a short context window:
+
+```bash
+GPU_COUNT=2 \
+TP_SIZE=2 \
+CONTEXT_LENGTH=8192 \
+CPU_OFFLOAD_GB=128 \
+MIN_MEMORY_GB=512 \
+BID_PER_GPU=1.99 \
+NETWORK_VOLUME_ID=<volume-id> \
+scripts/runpod/create_spot_pod_graphql.sh
+```
+
+This is a feasibility probe, not a performance baseline. If it works, benchmark results should be labeled separately from full-GPU 4x MI300X results.
+
 ## Serve Command
 
 ```bash
