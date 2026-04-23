@@ -160,6 +160,29 @@ Because the pod never became actually reachable, SGLang was never started and no
 
 This was the same underlying failure mode seen in earlier MI300X idle probes on the same host family: allocation succeeded, but the pod never crossed into a reachable runtime state.
 
+## 4x MI300X Benchmark Retry
+
+A second direct retry was made later the same day to verify whether the MI300X failure was transient.
+
+Pod `i8kqc7pmls7d0b`:
+
+- GPU: `4x AMD Instinct MI300X OAM`
+- Datacenter: `EU-RO-1`
+- Image: `lmsysorg/sglang:v0.5.9-rocm700-mi30x`
+- Volume: `1000 GB`
+- Cost: `$7.96/hr`
+- Initial startup command: `sleep infinity`
+
+Observed behavior:
+
+- The pod allocated successfully.
+- RunPod again placed it on the same MI300X machine family and the same host IP `213.173.96.55`.
+- SSH metadata appeared with a new port `10899`.
+- Direct SSH attempts to `213.173.96.55:10899` returned `Connection refused`.
+- `uptimeSeconds` remained `0`.
+
+This retry produced no new usable state beyond the first benchmark attempt. It reinforced that the blocker is a repeated provider host-readiness failure on the current MI300X path, not an intermittent one-off startup problem.
+
 ## Immediate Next Step
 
 Do not spend more time trying to benchmark frameworks on a pod that is not reachable. The next attempt should begin with a known-good idle readiness probe on a different provider or a RunPod path that bypasses this pod-readiness failure mode.
