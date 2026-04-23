@@ -119,6 +119,22 @@ scripts/runpod/create_spot_pod_graphql.sh
 
 This is expected to be much slower than the 4x baseline and may fail during load if CPU offload is not enough for Kimi K2.6 on MI300X.
 
+For a 3x MI300X probe, do not use `TP_SIZE=3`. Kimi K2.6 has 64 attention heads, so tensor parallelism of 3 is not a clean shard. Use pipeline parallelism instead:
+
+```bash
+GPU_COUNT=3 \
+TP_SIZE=1 \
+PP_SIZE=3 \
+CONTEXT_LENGTH=4096 \
+CPU_OFFLOAD_GB=64 \
+MIN_MEMORY_GB=512 \
+BID_PER_GPU=1.99 \
+NETWORK_VOLUME_ID=<volume-id> \
+scripts/runpod/create_spot_pod_graphql.sh
+```
+
+This is also a feasibility probe, not a baseline.
+
 ## Stop Condition
 
 Terminate the pod after each benchmark window unless another run starts immediately:

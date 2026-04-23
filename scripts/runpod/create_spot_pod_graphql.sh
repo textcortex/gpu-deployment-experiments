@@ -25,6 +25,7 @@ PORTS="${PORTS:-30000/http,22/tcp}"
 BID_PER_GPU="${BID_PER_GPU:-1.69}"
 START_SERVER="${START_SERVER:-1}"
 TP_SIZE="${TP_SIZE:-${GPU_COUNT}}"
+PP_SIZE="${PP_SIZE:-1}"
 CONTEXT_LENGTH="${CONTEXT_LENGTH:-128000}"
 MEM_FRACTION_STATIC="${MEM_FRACTION_STATIC:-0.8}"
 KV_CACHE_DTYPE="${KV_CACHE_DTYPE:-fp8_e4m3}"
@@ -51,6 +52,9 @@ if [[ "$START_SERVER" == "1" ]]; then
     server_cmd="${server_cmd} && ${PRE_START_CMD}"
   fi
   server_cmd="${server_cmd} && sglang serve --model-path ${MODEL_PATH} --tp ${TP_SIZE} --trust-remote-code --reasoning-parser kimi_k2 --tool-call-parser kimi_k2 --host 0.0.0.0 --port 30000 --context-length ${CONTEXT_LENGTH} --kv-cache-dtype ${KV_CACHE_DTYPE} --mem-fraction-static ${MEM_FRACTION_STATIC}"
+  if [[ "$PP_SIZE" != "1" ]]; then
+    server_cmd="${server_cmd} --pipeline-parallel-size ${PP_SIZE}"
+  fi
   if [[ "$CPU_OFFLOAD_GB" != "0" ]]; then
     server_cmd="${server_cmd} --cpu-offload-gb ${CPU_OFFLOAD_GB}"
   fi
@@ -124,6 +128,7 @@ Creating RunPod spot pod via GraphQL.
   bid/gpu:     ${BID_PER_GPU}
   network vol: ${NETWORK_VOLUME_ID}
   start server:${START_SERVER}
+  TP/PP:       ${TP_SIZE}/${PP_SIZE}
   cpu offload: ${CPU_OFFLOAD_GB} GB
 EOF
 
