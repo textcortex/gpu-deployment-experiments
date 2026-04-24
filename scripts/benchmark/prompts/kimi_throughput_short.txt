@@ -1,0 +1,4 @@
+Write exactly 32 lowercase words related to GPU inference, separated by single spaces. No numbering, no punctuation, no extra text.
+Write exactly 32 lowercase words related to CPU memory, separated by single spaces. No numbering, no punctuation, no extra text.
+Write exactly 32 lowercase words related to model serving latency, separated by single spaces. No numbering, no punctuation, no extra text.
+Write exactly 32 lowercase words related to benchmarking, separated by single spaces. No numbering, no punctuation, no extra text.

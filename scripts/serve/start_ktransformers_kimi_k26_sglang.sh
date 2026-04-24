@@ -15,7 +15,13 @@ KT_GPU_PREFILL_TOKEN_THRESHOLD="${KT_GPU_PREFILL_TOKEN_THRESHOLD:-400}"
 MEM_FRACTION_STATIC="${MEM_FRACTION_STATIC:-0.94}"
 CHUNKED_PREFILL_SIZE="${CHUNKED_PREFILL_SIZE:-32658}"
 MAX_TOTAL_TOKENS="${MAX_TOTAL_TOKENS:-50000}"
+MAX_RUNNING_REQUESTS="${MAX_RUNNING_REQUESTS:-}"
 ATTENTION_BACKEND="${ATTENTION_BACKEND:-flashinfer}"
+KT_ENABLE_DYNAMIC_EXPERT_UPDATE="${KT_ENABLE_DYNAMIC_EXPERT_UPDATE:-0}"
+KT_EXPERT_PLACEMENT_STRATEGY="${KT_EXPERT_PLACEMENT_STRATEGY:-}"
+KT_MAX_DEFERRED_EXPERTS_PER_TOKEN="${KT_MAX_DEFERRED_EXPERTS_PER_TOKEN:-}"
+DISABLE_SHARED_EXPERTS_FUSION="${DISABLE_SHARED_EXPERTS_FUSION:-1}"
+WATCHDOG_TIMEOUT="${WATCHDOG_TIMEOUT:-}"
 PRE_START_CMD="${PRE_START_CMD:-}"
 DISABLE_CUDA_GRAPH="${DISABLE_CUDA_GRAPH:-0}"
 
@@ -48,11 +54,34 @@ args=(
   --enable-mixed-chunk
   --tensor-parallel-size "$TP_SIZE"
   --enable-p2p-check
-  --disable-shared-experts-fusion
   --chunked-prefill-size "$CHUNKED_PREFILL_SIZE"
   --max-total-tokens "$MAX_TOTAL_TOKENS"
   --attention-backend "$ATTENTION_BACKEND"
 )
+
+if [[ -n "$MAX_RUNNING_REQUESTS" ]]; then
+  args+=(--max-running-requests "$MAX_RUNNING_REQUESTS")
+fi
+
+if [[ "$KT_ENABLE_DYNAMIC_EXPERT_UPDATE" == "1" ]]; then
+  args+=(--kt-enable-dynamic-expert-update)
+fi
+
+if [[ -n "$KT_EXPERT_PLACEMENT_STRATEGY" ]]; then
+  args+=(--kt-expert-placement-strategy "$KT_EXPERT_PLACEMENT_STRATEGY")
+fi
+
+if [[ -n "$KT_MAX_DEFERRED_EXPERTS_PER_TOKEN" ]]; then
+  args+=(--kt-max-deferred-experts-per-token "$KT_MAX_DEFERRED_EXPERTS_PER_TOKEN")
+fi
+
+if [[ "$DISABLE_SHARED_EXPERTS_FUSION" == "1" ]]; then
+  args+=(--disable-shared-experts-fusion)
+fi
+
+if [[ -n "$WATCHDOG_TIMEOUT" ]]; then
+  args+=(--watchdog-timeout "$WATCHDOG_TIMEOUT")
+fi
 
 if [[ "$DISABLE_CUDA_GRAPH" == "1" ]]; then
   args+=(--disable-cuda-graph)
