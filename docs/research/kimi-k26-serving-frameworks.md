@@ -78,3 +78,35 @@ When RunPod gives us a genuinely reachable node, use this order:
 ## Blocking Constraint Today
 
 On 2026-04-23, RunPod on-demand capacity did eventually allocate several large nodes, but the allocated pods did not become actually reachable over SSH/HTTP before cleanup. That prevented an empirical framework benchmark on RunPod today.
+
+## Empirical Update: 2026-04-24
+
+We now have one real RunPod benchmark on the board:
+
+- framework: `KTransformers` via `sglang-kt`
+- hardware: `4x NVIDIA H100 80GB`
+- provider: RunPod Secure, `AP-IN-1`
+- model: full `moonshotai/Kimi-K2.6`
+
+Warm benchmark results on that node:
+
+| Concurrency | Requests | Max tokens | Avg latency | Requests/s | Output tok/s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | 4 | 32 | `5.12 s` | `0.195` | `6.25` |
+| 2 | 4 | 32 | `5.22 s` | `0.378` | `12.11` |
+| 4 | 4 | 32 | `8.04 s` | `0.487` | `15.59` |
+
+What this changes:
+
+- `KTransformers` is now the first framework we have actually deployed and benchmarked for Kimi K2.6 on RunPod.
+- The earlier ranking for `vLLM` and pure `SGLang` remains an inference from official docs, not our own measured result yet.
+- On `4x H100`, `KTransformers` is a practical full-checkpoint path because it can lean on the node's large CPU RAM. That same node is still not the right apples-to-apples baseline for pure all-GPU `vLLM` or pure `SGLang`.
+
+Revised status table:
+
+| Framework | Current status | Notes |
+| --- | --- | --- |
+| `KTransformers` | benchmarked | works on `4x H100` with source build and large host RAM |
+| `vLLM` | not yet benchmarked | still the expected first pure-GPU throughput baseline on a larger node |
+| `SGLang` | not yet benchmarked on pure-GPU K2.6 | AMD path remains blocked by MI300X RunPod readiness |
+| `TensorRT-LLM` | not benchmarked | still not a clean K2.6 baseline on current public support docs |

@@ -1,0 +1,4 @@
+{"chars": 126, "error": null, "latency_s": 5.181011873297393, "ok": true, "output_tokens": 32, "prompt": "Write a concise Python function that checks whether a string is a palindrome.", "request_id": 0, "total_tokens": 56}
+{"chars": 137, "error": null, "latency_s": 4.989469431806356, "ok": true, "output_tokens": 32, "prompt": "Summarize the tradeoffs between spot GPU instances and on-demand GPU instances.", "request_id": 1, "total_tokens": 56}
+{"chars": 139, "error": null, "latency_s": 5.467662460170686, "ok": true, "output_tokens": 32, "prompt": "Given a web service with p95 latency spikes, list five debugging steps.", "request_id": 2, "total_tokens": 56}
+{"chars": 205, "error": null, "latency_s": 4.842147682793438, "ok": true, "output_tokens": 32, "prompt": "Create a small SQL schema for tracking GPU benchmark runs.", "request_id": 3, "total_tokens": 52}
