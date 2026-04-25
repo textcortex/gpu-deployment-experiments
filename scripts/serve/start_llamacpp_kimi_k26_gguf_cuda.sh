@@ -7,6 +7,8 @@ PORT="${PORT:-30000}"
 CONTEXT_LENGTH="${CONTEXT_LENGTH:-4096}"
 GPU_LAYERS="${GPU_LAYERS:-999}"
 PARALLEL="${PARALLEL:-1}"
+SPLIT_MODE="${SPLIT_MODE:-layer}"
+TENSOR_SPLIT="${TENSOR_SPLIT:-1,1,1,1}"
 LLAMA_CPP_DIR="${LLAMA_CPP_DIR:-/workspace/src/llama.cpp}"
 LLAMA_CACHE="${LLAMA_CACHE:-/workspace/llama-cache}"
 CUDA_ARCHITECTURES="${CUDA_ARCHITECTURES:-80;86;90;100;120}"
@@ -46,4 +48,6 @@ exec ./build/bin/llama-server \
   -c "$CONTEXT_LENGTH" \
   -ngl "$GPU_LAYERS" \
   --jinja \
-  --parallel "$PARALLEL"
+  --parallel "$PARALLEL" \
+  --split-mode "$SPLIT_MODE" \
+  --tensor-split "$TENSOR_SPLIT"

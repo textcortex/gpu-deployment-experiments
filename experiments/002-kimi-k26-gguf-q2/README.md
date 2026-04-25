@@ -60,6 +60,36 @@ Outcome:
 
 This failure mode points to RunPod host readiness, not model fit. The deployment never reached the point where `llama-server` could start downloading or loading the GGUF.
 
+## 2026-04-25 4x RTX PRO 6000 Attempts
+
+Two `4x RTX PRO 6000 Blackwell Server Edition` attempts were made on 2026-04-25 for the same `UD-Q2_K_XL` GGUF using llama.cpp CUDA with explicit multi-GPU sharding enabled.
+
+Configuration:
+
+| Field | Value |
+| --- | --- |
+| Cloud | Community |
+| GPU | `NVIDIA RTX PRO 6000 Blackwell Server Edition` |
+| GPU count | `4` |
+| Aggregate VRAM | `384 GB` |
+| Image | `runpod/pytorch:1.0.3-cu1281-torch291-ubuntu2404` |
+| Model | `unsloth/Kimi-K2.6-GGUF:UD-Q2_K_XL` |
+| Context | `2048` |
+| Split mode | `layer` |
+| Tensor split | `1,1,1,1` |
+| Port | `30000/http` |
+
+Outcome:
+
+- First pod: `eleak5xoojla2a`
+- Second pod: `qm93vevzo0cz1j`
+- Both landed on the same machine family: `9ti6j8484pn1`
+- First attempt never exposed reachable SSH
+- Second attempt later exposed SSH metadata (`107.150.186.62:13340`) but direct SSH still returned `Connection refused`
+- In both cases `uptimeSeconds` remained `0`, so the runtime never transitioned into a usable state
+
+These attempts confirm that the current RunPod `4x RTX PRO 6000` allocator is also returning a non-ready host for this workflow.
+
 ## Launch Runbook
 
 Capacity probe with a disposable pod volume:
