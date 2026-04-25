@@ -14,7 +14,8 @@ RUNPOD_API_KEY="${RUNPOD_API_KEY:-$(api_key_from_config)}"
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/../.." && pwd)"
-start_script="$repo_root/scripts/serve/start_llamacpp_kimi_k26_gguf_cuda.sh"
+: "${START_SCRIPT:=$repo_root/scripts/serve/start_llamacpp_kimi_k26_gguf_cuda.sh}"
+start_script="$START_SCRIPT"
 
 : "${NAME:=kimi-k26-gguf-q2-$(date -u +%Y%m%d-%H%M%S)}"
 : "${CLOUD_TYPE:=COMMUNITY}"

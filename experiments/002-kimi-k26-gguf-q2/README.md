@@ -31,6 +31,35 @@ For a 350 GB+ RAM/VRAM target, the cheapest RunPod candidates observed on 2026-0
 
 The selected target was 8x RTX A6000 Community first because it was the cheapest aggregate-VRAM fit. The fallback target was 8x A40 Secure because it was the cheapest configuration that actually allocated a machine.
 
+## 2026-04-25 2x MI300X ROCm Attempt
+
+A direct AMD GGUF attempt was made on 2026-04-25 because 2x MI300X is the smallest native RunPod MI300X topology that should fit the `UD-Q2_K_XL` artifact in aggregate VRAM.
+
+Configuration:
+
+| Field | Value |
+| --- | --- |
+| Cloud | Secure |
+| Datacenter | `EU-RO-1` |
+| GPU | `AMD Instinct MI300X OAM` |
+| GPU count | `2` |
+| Aggregate VRAM | `384 GB` |
+| Image | `rocm/llama.cpp:llama.cpp-b6356_rocm7.0.0_ubuntu24.04_server` |
+| Model | `unsloth/Kimi-K2.6-GGUF:UD-Q2_K_XL` |
+| Context | `2048` |
+| Tensor split | `1,1` |
+| Port | `30000/http` |
+
+Outcome:
+
+- Pod `0g06vsh8v3rqxw` allocated at `$3.98/hr`.
+- RunPod placed it on machine `j03rnq2tcsxu`, the same MI300X host family that had already failed earlier full-checkpoint attempts.
+- For more than four minutes after allocation, `desiredStatus` remained `RUNNING` but `uptimeSeconds` stayed `0`.
+- No public IP was assigned, HTTP never came up, and SSH remained `pod not ready`.
+- The pod was deleted without benchmark data because the runtime never became reachable.
+
+This failure mode points to RunPod host readiness, not model fit. The deployment never reached the point where `llama-server` could start downloading or loading the GGUF.
+
 ## Launch Runbook
 
 Capacity probe with a disposable pod volume:
