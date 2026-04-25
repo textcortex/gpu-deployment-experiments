@@ -92,6 +92,28 @@ Outcome:
 
 These attempts confirm that the current RunPod `4x RTX PRO 6000` allocator is also returning a non-ready host for this workflow.
 
+## 2026-04-25 Cheapest-Available Search
+
+An explicit cheapest-first search was run on 2026-04-25 against the live RunPod inventory for the `UD-Q2_K_XL` GGUF path. The target requirement was the smallest practical even-GPU topology with enough aggregate VRAM to plausibly serve the 340 GB artifact.
+
+Observed order from the live market:
+
+| Candidate | Result |
+| --- | --- |
+| `8x A40` | cheapest likely fit, but no allocatable instances |
+| `8x RTX A6000` | no allocatable instances |
+| `2x MI300X` | allocated at `$3.98/hr`, but host never transitioned into a live runtime |
+| `4x H100 80GB` | no allocatable instances in REST-allowed H100 regions |
+| `4x H100 NVL` | allocated at `$10.36/hr`, but host never transitioned into a live runtime |
+| `4x H200` | no allocatable instances |
+| `4x RTX PRO 6000 Secure` | allocated at `$7.56/hr`, new host, but still never transitioned into a live runtime |
+
+Conclusion:
+
+- The cheapest allocatable shape today was `2x MI300X` at `$3.98/hr`.
+- The cheapest allocatable NVIDIA shape today was `4x RTX PRO 6000 Secure` at `$7.56/hr`.
+- None of the allocatable shapes actually became reachable enough to run inference, so there is still no successful cheap RunPod baseline for this model on this date.
+
 ## Launch Runbook
 
 Capacity probe with a disposable pod volume:
