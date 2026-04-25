@@ -72,6 +72,25 @@ if [[ -n "${HF_TOKEN:-}" ]]; then
   pod_env="$(jq --arg token "$HF_TOKEN" '. + {HF_TOKEN: $token}' <<<"$pod_env")"
 fi
 
+for key in \
+  HF_MODEL \
+  HOST \
+  PORT \
+  CONTEXT_LENGTH \
+  GPU_LAYERS \
+  PARALLEL \
+  SPLIT_MODE \
+  TENSOR_SPLIT \
+  LLAMA_CPP_DIR \
+  CUDA_ARCHITECTURES \
+  BUILD_THREADS \
+  ROCR_VISIBLE_DEVICES
+do
+  if [[ -n "${!key:-}" ]]; then
+    pod_env="$(jq --arg key "$key" --arg value "${!key}" '. + {($key): $value}' <<<"$pod_env")"
+  fi
+done
+
 payload="$(
   jq -n \
     --arg name "$NAME" \

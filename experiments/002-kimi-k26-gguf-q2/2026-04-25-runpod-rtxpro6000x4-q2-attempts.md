@@ -66,9 +66,31 @@ Observed behavior:
 - `uptimeSeconds` remained `0`
 - No benchmark was possible because the runtime never became reachable
 
+## Attempt 3
+
+| Field | Value |
+| --- | --- |
+| Pod name | `kimi-k26-gguf-q2-rtxpro6000x4-20260425-3` |
+| Pod ID | `2qlu7nwua4ndd8` |
+| Cost | `$6.76/hr` |
+| Requested datacenter | `CA-MTL-3` |
+| Machine ID | `9ti6j8484pn1` |
+
+Observed behavior:
+
+- Pod allocated again onto the same machine ID as attempts 1 and 2
+- RunPod later exposed SSH metadata: `107.150.186.62:13262`
+- Direct SSH attempts still returned `Connection refused`
+- `uptimeSeconds` remained `0`
+- No benchmark was possible because the runtime never became reachable
+
+## Launcher Fix
+
+During the third retry, the pod launcher was corrected to pass runtime overrides such as `HF_MODEL`, `CONTEXT_LENGTH`, `SPLIT_MODE`, and `TENSOR_SPLIT` into the pod environment. That means later GGUF retries now accurately reflect the requested serving topology instead of silently falling back to startup-script defaults.
+
 ## Interpretation
 
-This is another provider readiness failure. The second attempt is especially useful because it shows that even after RunPod exposed SSH metadata, the host still was not accepting TCP connections.
+This is another provider readiness failure. The second and third attempts are especially useful because they show that even after RunPod exposed SSH metadata, the host still was not accepting TCP connections.
 
 That means:
 

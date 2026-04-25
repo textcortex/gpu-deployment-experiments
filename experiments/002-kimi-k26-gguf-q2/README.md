@@ -62,7 +62,7 @@ This failure mode points to RunPod host readiness, not model fit. The deployment
 
 ## 2026-04-25 4x RTX PRO 6000 Attempts
 
-Two `4x RTX PRO 6000 Blackwell Server Edition` attempts were made on 2026-04-25 for the same `UD-Q2_K_XL` GGUF using llama.cpp CUDA with explicit multi-GPU sharding enabled.
+Three `4x RTX PRO 6000 Blackwell Server Edition` attempts were made on 2026-04-25 for the same `UD-Q2_K_XL` GGUF using llama.cpp CUDA with explicit multi-GPU sharding enabled.
 
 Configuration:
 
@@ -83,10 +83,12 @@ Outcome:
 
 - First pod: `eleak5xoojla2a`
 - Second pod: `qm93vevzo0cz1j`
-- Both landed on the same machine family: `9ti6j8484pn1`
+- Third pod: `2qlu7nwua4ndd8`
+- All three landed on the same machine family: `9ti6j8484pn1`
 - First attempt never exposed reachable SSH
 - Second attempt later exposed SSH metadata (`107.150.186.62:13340`) but direct SSH still returned `Connection refused`
-- In both cases `uptimeSeconds` remained `0`, so the runtime never transitioned into a usable state
+- Third attempt later exposed SSH metadata (`107.150.186.62:13262`) but direct SSH still returned `Connection refused`
+- In all three cases `uptimeSeconds` remained `0`, so the runtime never transitioned into a usable state
 
 These attempts confirm that the current RunPod `4x RTX PRO 6000` allocator is also returning a non-ready host for this workflow.
 
