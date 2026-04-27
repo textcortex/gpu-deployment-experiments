@@ -1,0 +1,62 @@
+name: Build RunPod worker vLLM Qwen3.6
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare worker-vllm
+        run: |
+          git clone --depth 1 https://github.com/runpod-workers/worker-vllm.git worker-vllm
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("worker-vllm/Dockerfile")
+          text = path.read_text()
+          text = text.replace(
+              'RUN python3 -m pip install --upgrade pip && \\\n'
+              '    python3 -m pip install "vllm[flashinfer]==0.16.0" --extra-index-url https://download.pytorch.org/whl/cu129',
+              'RUN python3 -m pip install --upgrade pip && \\\n'
+              '    python3 -m pip install -U vllm --pre --index-url https://pypi.org/simple --extra-index-url https://wheels.vllm.ai/nightly',
+          )
+          text = text.replace(
+              'RUN if [ "${VLLM_NIGHTLY}" = "true" ]; then \\\n'
+              '    pip install -U vllm --pre --index-url https://pypi.org/simple --extra-index-url https://wheels.vllm.ai/nightly && \\\n'
+              '    apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \\\n'
+              '    pip install git+https://github.com/huggingface/transformers.git; \\\n'
+              'fi',
+              'RUN if [ "${VLLM_NIGHTLY}" = "true" ]; then \\\n'
+              '    apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \\\n'
+              '    pip install git+https://github.com/huggingface/transformers.git; \\\n'
+              'fi',
+          )
+          path.write_text(text)
+          PY
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: worker-vllm
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            VLLM_NIGHTLY=true
+          tags: ghcr.io/textcortex/runpod-worker-vllm-qwen36:nightly-20260427
